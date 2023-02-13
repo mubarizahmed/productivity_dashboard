@@ -1,20 +1,33 @@
 <script>
-  import TaskView  from '$lib/components/TaskView.svelte';
+	import TaskView from '$lib/components/TaskView.svelte';
 </script>
 
-<div class="flex flex-col items-center justify-center min-h-screen py-2">
-  <h1 class="text-3xl font-bold">
-    Dashboard
-  </h1>
-  <div class="flex flex-row justify-evenly w-screen">
-
-    <TaskView />
-    
-    <div class="flex flex-col">
-      <h2 class="text-2xl font-bold">
-        Upcoming Tasks
-      </h2>
-
-    </div>
+<div class="flex min-h-screen flex-col items-center justify-start gap-16 p-16">
+	<div class="flex h-20 w-full flex-row items-center justify-evenly gap-16">
+		<div
+			class="flex h-full flex-[1] items-center justify-start rounded-xl bg-gradient-to-r from-neutral-300 to-stone-400 p-4"
+		>
+			<h1 class="text-2xl font-bold">LAST 7 DAYS</h1>
+		</div>
+		<div
+			class="flex h-full flex-[3] items-center justify-start rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 p-4"
+		>
+			<h1 class="text-3xl font-bold">Dashboard</h1>
+		</div>
+	</div>
+	<div class="flex w-full flex-row items-center justify-evenly gap-16">
+		<div class="flex flex-[1] h-full">
+			<TaskView />
+		</div>
+		<div
+			class="flex-[1] flex min-h-full flex-col items-center justify-start rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 p-4"
+		>
+			<h2 class="text-2xl font-bold">Timeline</h2>
+		</div>
+    <div
+    class="flex-[1] flex min-h-full flex-col items-center justify-start rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 p-4"
+  >
+    <h2 class="text-2xl font-bold">Upcoming Tasks</h2>
   </div>
+	</div>
 </div>
