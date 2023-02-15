@@ -4,7 +4,7 @@
 	console.log(PUBLIC_TODOIST_API_TOKEN);
 	const api = new TodoistApi(PUBLIC_TODOIST_API_TOKEN);
 	import Icon from '@iconify/svelte';
-	import Task from '$lib/components/Task.svelte';
+	import Task from '$lib/components/task/Task.svelte';
 
 	let tasksList = [];
 	let projectsList = [];
@@ -134,7 +134,7 @@
 	<!-- horizontal divider -->
 	<div class="h-0.5 w-full bg-gray-500" />
 
-	<div class="flex flex-col items-center justify-center overflow-hidden">
+	<div class="flex flex-col w-full items-center justify-center overflow-hidden">
 		{#await getTodoistData()}
 			<div>loading...</div>
 		{:then}
@@ -147,7 +147,7 @@
 					on:delete={deleteTask}
 				/>
 				<!-- divider -->
-				<div class="h-[1px] w-full bg-gray-500" />
+				<!-- <div class="h-[1px] w-full bg-gray-500" /> -->
 			{/each}
 
 			{#if add}

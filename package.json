@@ -30,6 +30,9 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@doist/todoist-api-typescript": "^2.1.2"
+		"@doist/todoist-api-typescript": "^2.1.2",
+		"@types/gapi": "^0.0.44",
+		"gapi-script": "^1.2.0",
+		"react-google-calendar-api": "^2.1.0"
 	}
 }

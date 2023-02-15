@@ -26,7 +26,7 @@
 	}
 </script>
 
-<div class="group flex w-full flex-row items-center justify-start gap-2 p-2">
+<div class="group flex w-full border-gray-400 rounded border my-1 flex-row items-center justify-start gap-2 p-2">
 	{#if edit}
 		<div class="flex w-full flex-col">
 			<input
@@ -77,7 +77,7 @@
 				<!-- task name -->
 				<h1 class="text-l flex-1">{taskData?.content}</h1>
 				<!-- edit button -->
-				<button class="h-max  group-hover:visible" on:click={toggleEdit}>
+				<button class="h-max invisible group-hover:visible" on:click={toggleEdit}>
 					<Icon icon="carbon:edit" color="#000000" class="h-4 w-4" />
 				</button>
 			</div>
