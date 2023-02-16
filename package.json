@@ -33,6 +33,7 @@
 		"@doist/todoist-api-typescript": "^2.1.2",
 		"@types/gapi": "^0.0.44",
 		"gapi-script": "^1.2.0",
+		"googleapis": "^111.0.0",
 		"react-google-calendar-api": "^2.1.0"
 	}
 }

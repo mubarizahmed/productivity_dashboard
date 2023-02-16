@@ -1,5 +1,6 @@
 <script>
 	import TaskView from '$lib/components/task/TaskView.svelte';
+	// import GoogleAuth from '$lib/components/calendar/GoogleAuth.svelte';
 	import CalendarView from '$lib/components/calendar/CalendarView.svelte';
 </script>
 
@@ -30,6 +31,8 @@
   >
     <h2 class="text-2xl ">Upcoming Tasks</h2>
 		<CalendarView />
+
+
   </div>
 	</div>
 </div>
