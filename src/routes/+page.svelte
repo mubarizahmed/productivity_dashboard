@@ -17,7 +17,7 @@
 			<h1 class="text-3xl ">Dashboard</h1>
 		</div>
 	</div>
-	<div class="flex w-full flex-row items-center justify-evenly gap-16">
+	<div class="flex w-full flex-row items-start justify-evenly gap-16">
 		<div class="flex flex-[1] h-full">
 			<TaskView />
 		</div>

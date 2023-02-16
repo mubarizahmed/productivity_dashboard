@@ -77,7 +77,7 @@
 				<!-- task name -->
 				<h1 class="text-l flex-1">{taskData?.content}</h1>
 				<!-- edit button -->
-				<button class="h-max invisible group-hover:visible" on:click={toggleEdit}>
+				<button class="h-max invisible group-hover:visible text-xs" on:click={toggleEdit}>
 					<Icon icon="carbon:edit" color="#000000" class="h-4 w-4" />
 				</button>
 			</div>
