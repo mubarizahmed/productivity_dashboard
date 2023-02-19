@@ -13,6 +13,13 @@ module.exports = {
         'todoist-3': '#eb8909',
         'todoist-2': '#246fe0',
         'todoist-1': 'grey',
+        'pd-blue': '#1E1E1E',
+        'pd-red': '#D1453B',
+        'pd-yellow': '#eb8909',
+        'pd-green': '#246fe0',
+        'pd-grey': 'grey',
+        'pd-charcoal': '#1E1E1E',
+        'pd-orange': '#F2F2F2',
       },
       backgroundImage: {
         'gradient-1': 'linear-gradient(-225deg, #2CD8D5 0%, #6B8DD6 48%, #8E37D7 100%)'

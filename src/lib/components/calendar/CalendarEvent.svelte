@@ -9,6 +9,8 @@
 	let editStart = '';
 	let editEnd = '';
 
+	const dispatcher = createEventDispatcher();
+
 	function toggleEdit() {
 		edit = !edit;
 		editSummary = event.summary;
@@ -18,10 +20,16 @@
 	}
 
 	function editEventForward() {
-		dispatcher('edit', { taskId: taskData.id, editText: editText });
 		event.summary = editSummary;
-		event.start.dateTime = editStart+"+1:00";
-		event.end.dateTime = editEnd+"+1:00";
+		event.start.dateTime = editStart.slice(0,16)+":00+01:00";
+		event.end.dateTime = editEnd.slice(0,16)+":00+01:00";
+
+		dispatcher('edit', { calendarId: event.calendarId, eventId: event.id, event: event});
+		toggleEdit();
+	}
+
+	function deleteEventForward() {
+		dispatcher('delete', { calendarId: event.calendarId, eventId: event.id});
 		toggleEdit();
 	}
 </script>
@@ -49,7 +57,7 @@
 				<!-- delete button -->
 				<button
 					class="h-max rounded hover:bg-todoist-4"
-					on:click={() => dispatcher('delete', { eventEtag: event.etag })}
+					on:click={deleteEventForward}
 				>
 					<Icon icon="ic:baseline-delete-forever" color="#000000" class="h-6 w-6" />
 				</button>
