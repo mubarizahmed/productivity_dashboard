@@ -45,7 +45,8 @@
 
 	// Authorization scopes required by the API; multiple scopes can be
 	// included, separated by spaces.
-	const SCOPES = 'https://www.googleapis.com/auth/calendar';
+	const SCOPES =
+		'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events';
 
 	// Global variables
 	let tokenClient;
@@ -111,12 +112,14 @@
 		};
 
 		if (gapi.client.getToken() === null) {
+
 			// Prompt the user to select a Google Account and ask for consent to share their data
 			// when establishing a new session.
-			tokenClient.requestAccessToken({prompt: 'consent'});
+			tokenClient.requestAccessToken();
+			console.log(gapi.client.getToken());
 		} else {
 			// Skip display of account chooser and consent dialog for an existing session.
-			tokenClient.requestAccessToken({prompt: ''});
+			tokenClient.requestAccessToken();
 			console.log(gapi.client.getToken());
 		}
 	}
@@ -291,57 +294,10 @@
 			console.log(err.message);
 		}
 	}
-	function decodeJwtResponse(token) {
-		let base64Url = token.split('.')[1];
-		let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-		let jsonPayload = decodeURIComponent(
-			atob(base64)
-				.split('')
-				.map(function (c) {
-					return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-				})
-				.join('')
-		);
-		return JSON.parse(jsonPayload);
-	}
-
-	let responsePayload;
-	globalThis.handleCredentialResponse = async (response) => {
-		// decodeJwtResponse() is a custom function defined by you
-		// to decode the credential response.
-		responsePayload = decodeJwtResponse(response.credential);
-		console.log(responsePayload);
-		console.log('ID: ' + responsePayload.sub);
-		console.log('Full Name: ' + responsePayload.name);
-		console.log('Given Name: ' + responsePayload.given_name);
-		console.log('Family Name: ' + responsePayload.family_name);
-		console.log('Image URL: ' + responsePayload.picture);
-		console.log('Email: ' + responsePayload.email);
-
-		// tokenClient.requestAccessToken();
-	};
 
 	$: console.log(loadedEvents);
 </script>
 
-<div
-	id="g_id_onload"
-	data-client_id="134944352773-is6uc47mcpe8qcfse1d9hks2smfj3meg.apps.googleusercontent.com"
-	data-context="signin"
-	data-ux_mode="popup"
-	data-callback="handleCredentialResponse"
-	data-auto_select="true"
-	data-itp_support="true"
-/>
-
-<div
-	class="g_id_signin"
-	data-type="icon"
-	data-shape="circle"
-	data-theme="outline"
-	data-text="signin_with"
-	data-size="large"
-/>
 <!--Add buttons to initiate auth sequence and sign out-->
 <button id="authorize_button" on:click={handleAuthClick}>Authorize</button>
 <button id="signout_button" on:click={handleSignoutClick}>Sign Out</button>

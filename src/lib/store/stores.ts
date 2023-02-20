@@ -1,6 +1,5 @@
 import type { EventType } from '$lib/types/event.type';
 import type { ProjectType } from '$lib/types/project.type';
-import type { ProjectArrayType } from '$lib/types/projectArray.type';
 import { writable, type Writable } from 'svelte/store';
 import { persistBrowserLocal } from '@macfja/svelte-persistent-store';
 
@@ -106,8 +105,17 @@ function createEvents(initial: EventType[]) {
 	};
 }
 
+function createTokenClient (){
+  const { subscribe, set, update } = persistBrowserLocal(writable(null), 'pd-token-client');
 
+  return {
+    subscribe,
+    set,
+    update
+  }
+}
 
 
 export let events = createEvents([]);
 export const projects = createProjects([]);
+export const tokenClient = createTokenClient();

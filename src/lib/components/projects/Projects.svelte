@@ -18,10 +18,8 @@
 			calendarName: 'Planner',
 			color: 'pd-gray'
 		};
-		console.log(project);
-
-
 		projects.addCalendarProject(project);
+
 		project = {
 			name: 'Planner',
 			todoistId: '',
@@ -32,6 +30,7 @@
 			color: 'pd-green'
 		};
 		projects.addCalendarProject(project);
+
 		project = {
 			name: 'Classes',
 			todoistId: '',
@@ -54,6 +53,7 @@
 				console.log(projects);
 				todoistProjects.forEach((todoistProject) => {
 					projects.addTodoistProject({
+						id: "todo/"+todoistProject.id,
 						name: todoistProject.name,
 						todoistId: todoistProject.id,
 						todoistURL: todoistProject.url,
@@ -72,8 +72,9 @@
 							var project = getProject(section.projectId);
               if (project){
                 projects.addTodoistProject({
+									id: "todo/"+todoistProject.id+'/'+section.id,
                   name: project.name + '/' + section.name,
-                  todoistId: project.todoistId+'/'+section.id,
+                  todoistId: project.todoistId,
                   todoistURL: project.todoistURL,
                   calendarId:
                     '4ae44282c14f6b5f93b3881395d3be21ef30c90e45a5c5d1512d456d403563bc@group.calendar.google.com',

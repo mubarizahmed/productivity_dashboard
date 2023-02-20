@@ -2,8 +2,6 @@
 	import { TodoistApi } from '@doist/todoist-api-typescript';
 	import type { Task as TaskType } from '@doist/todoist-api-typescript';
 	import { PUBLIC_TODOIST_API_TOKEN } from '$env/static/public';
-	console.log(PUBLIC_TODOIST_API_TOKEN);
-	const api = new TodoistApi(PUBLIC_TODOIST_API_TOKEN);
 	import Icon from '@iconify/svelte';
 	import Task from '$lib/components/task/Task.svelte';
 	import { projects, events } from '$lib/store/stores';
@@ -13,6 +11,8 @@
 	let add = false;
 	let addText = '';
 	
+	console.log(PUBLIC_TODOIST_API_TOKEN);
+	const api = new TodoistApi(PUBLIC_TODOIST_API_TOKEN);
 
 	async function getTodoistData() {
 		api
