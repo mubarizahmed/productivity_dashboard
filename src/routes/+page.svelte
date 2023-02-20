@@ -32,7 +32,7 @@
 	</div>
 	<div class="flex w-full flex-row items-start justify-evenly gap-16">
 		<div class="flex flex-[1] h-full">
-			<Projects {$projects}/>
+			<Projects />
 			<TaskView />
 		</div>
 		<div

@@ -1,35 +1,113 @@
 import type { EventType } from '$lib/types/event.type';
 import type { ProjectType } from '$lib/types/project.type';
 import type { ProjectArrayType } from '$lib/types/projectArray.type';
-import {writable, type Writable} from 'svelte/store';
-import { persistBrowserLocal } from "@macfja/svelte-persistent-store"
+import { writable, type Writable } from 'svelte/store';
+import { persistBrowserLocal } from '@macfja/svelte-persistent-store';
 
+// export let projects = <ProjectType>(initial: []) => {
+function createProjects(initial: ProjectType[]) {
+	const { subscribe, set, update } = persistBrowserLocal(writable(initial), 'pd-projects');
 
-export let projects = <ProjectType>(initial: ProjectType[]) => {
-  const { subscribe, set, update } = writable<ProjectType[]>(initial);
+	return {
+		subscribe,
+    addCalendarProject: (project: ProjectType) => {
+			update((projects) => {
+				if (projects) {
+          if (projects.find((i) => i.calendarId === project.calendarId)) {
+            return projects.map((i) => {
+              if (i.calendarId === project.calendarId) {
+                return project;
+              }
+              return i;
+            });
+          } else {
+            return [...projects, project];
+          }
+				}
+				return [project];
+			});
+		},
+		addTodoistProject: (project: ProjectType) => {
+			update((projects) => {
+				if (projects) {
+          if (projects.find((i) => i.todoistId === project.todoistId)) {
+            return projects.map((i) => {
+              if (i.todoistId === project.todoistId) {
+                return project;
+              }
+              return i;
+            });
 
-  return {
-    subscribe,
-    addProject: (project: ProjectType) => {
-      update((projects) => [...projects, project])
-    },
-    clear: () => set([])
-  };
+          } else {
+            return [...projects, project];
+          }
+				}
+				return [project];
+			});
+		},
+		clear: () => set([])
+	};
 }
 
-function createEvents() {
-  const { subscribe, set, update } = writable(new Array<EventType>());
+function createEvents(initial: EventType[]) {
+	const { subscribe, set, update } = persistBrowserLocal(writable(initial), 'pd-events');
 
-  return {
-    subscribe,
-    addEvent: (event: EventType) => {
-      update((events) => [...events, event])
+	return {
+		subscribe,
+		addCalendarEvent: (event: EventType) => {
+			update((events) => {
+        if (events) {
+          if (events.find((i) => i.id === event.id)) {
+            return events.map((i) => {
+              if (i.id === event.id) {
+                return event;
+              }
+              return i;
+            });
+          } else {
+            return [...events, event];
+          }
+        }
+        return [event];
+      });
+		},
+    addTodoistTask: (task: EventType) => {
+      console.log('addTodoistTask');
+      update((events) => {
+        if (events) {
+          if (events.find((i) => i.id === task.id)) {
+            console.log('found task');
+            return events.map((i) => {
+              if (i.id === task.id) {
+                return task;
+              }
+              return i;
+            });
+          } else {
+            return [...events, task];
+          }
+        }
+        return [task];
+      });
     },
-    addTask: (task: TaskType) => {
-
+    completeTodoistTask: (eventId: string) => {
+      console.log('completeTodoistTask');
+      update((events) => {
+        return events.map((i) => {
+          if (i.id === eventId) {
+            i.completed = !i.completed;
+            return i;
+          }
+          return i;
+        });
+      });
     },
-    clear: () => set([])
-  };
+		clear: () => set([])
+	};
 }
 
-export let events = createEvents();
+
+
+
+export let events = createEvents([]);
+export const projects = createProjects([]);

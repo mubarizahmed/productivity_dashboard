@@ -4,8 +4,8 @@
 	import { TodoistApi } from '@doist/todoist-api-typescript';
 	import { PUBLIC_TODOIST_API_TOKEN } from '$env/static/public';
 	import type { ProjectType } from '$lib/types/project.type';
+	import { projects } from '$lib/store/stores';
 
-	export let projects: ProjectType[] = [];
 	const api = new TodoistApi(PUBLIC_TODOIST_API_TOKEN);
 
 	onMount(() => {
@@ -21,7 +21,7 @@
 		console.log(project);
 
 
-		projects.addProject(project);
+		projects.addCalendarProject(project);
 		project = {
 			name: 'Planner',
 			todoistId: '',
@@ -31,7 +31,7 @@
 			calendarName: 'Planner',
 			color: 'pd-green'
 		};
-		$projects.addProject(project);
+		projects.addCalendarProject(project);
 		project = {
 			name: 'Classes',
 			todoistId: '',
@@ -40,7 +40,9 @@
 			calendarName: 'Classes',
 			color: 'pd-blue'
 		};
-		$projects.addProject(project);
+		projects.addCalendarProject(project);
+
+		getTodoistData();
 	});
 
 	// getTodoistData();
@@ -48,17 +50,17 @@
 		// get projects
 		api
 			.getProjects()
-			.then((projects) => {
+			.then((todoistProjects) => {
 				console.log(projects);
-				projects.forEach((project) => {
-					$projects.addProject({
-						name: project.name,
-						todoistId: project.id,
-						todoistURL: project.url,
+				todoistProjects.forEach((todoistProject) => {
+					projects.addTodoistProject({
+						name: todoistProject.name,
+						todoistId: todoistProject.id,
+						todoistURL: todoistProject.url,
 						calendarId:
 							'4ae44282c14f6b5f93b3881395d3be21ef30c90e45a5c5d1512d456d403563bc@group.calendar.google.com',
 						calendarName: 'Planner',
-						color: 'pd-' + project.color
+						color: 'pd-' + todoistProject.color
 					});
 				});
 				// get sections
@@ -69,10 +71,10 @@
 						sections.forEach((section) => {
 							var project = getProject(section.projectId);
               if (project){
-                $projects.addSection({
+                projects.addTodoistProject({
                   name: project.name + '/' + section.name,
-                  todoistId: project.id,
-                  todoistURL: project.url,
+                  todoistId: project.todoistId+'/'+section.id,
+                  todoistURL: project.todoistURL,
                   calendarId:
                     '4ae44282c14f6b5f93b3881395d3be21ef30c90e45a5c5d1512d456d403563bc@group.calendar.google.com',
                   calendarName: 'Planner',
@@ -86,7 +88,7 @@
 			.catch((error) => console.log(error));
 	}
 
-  function getProject(id) {
+  function getProject(id: string) {
     return $projects.find((project) => project.todoistId === id);
   }
 

@@ -1,32 +1,43 @@
-<script>
+<script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { createEventDispatcher } from 'svelte';
+	import type { EventType } from '$lib/types/event.type';
 
-	export let taskData = [];
-	export let projectName = '';
-	export let projectUrl = '';
-	export let sectionName = '';
+	export let task: EventType;
 
 	let edit = false;
 	let editText = '';
 
-	const dispatcher = createEventDispatcher();
-
-	$: console.log(projectName, projectUrl, sectionName);
+	const dispatcher = createEventDispatcher<{
+		edit: { eventId: string; editText: string };
+		delete: { eventId: string };
+		complete: { eventId: string };
+	}>();
 
 	function toggleEdit() {
 		edit = !edit;
-		editText = taskData.content;
+		editText = task.name;
 	}
 
 	function editTaskForward() {
-		dispatcher('edit', { taskId: taskData.id, editText: editText });
-		taskData.content = editText;
+		console.log(task.id);
+		dispatcher('edit', { eventId: task.id, editText: editText });
 		toggleEdit();
 	}
+
+	function deleteTaskForward() {
+		dispatcher('delete', { eventId: task.id });
+	}
+
+	function completeTaskForward() {
+		dispatcher('complete', { eventId: task.id });
+	}
+
 </script>
 
-<div class="group flex w-full border-gray-400 rounded border my-1 flex-row items-center justify-start gap-2 p-2">
+<div
+	class="group my-1 flex w-full flex-row items-center justify-start gap-2 rounded border border-gray-400 p-2"
+>
 	{#if edit}
 		<div class="flex w-full flex-col">
 			<input
@@ -45,7 +56,7 @@
 				<!-- delete button -->
 				<button
 					class="h-max rounded hover:bg-todoist-4"
-					on:click={() => dispatcher('delete', { taskId: taskData.id })}
+					on:click={deleteTaskForward}
 				>
 					<Icon icon="ic:baseline-delete-forever" color="#000000" class="h-6 w-6" />
 				</button>
@@ -64,10 +75,8 @@
 	{:else}
 		<!-- circular button color coded based on priority, click to complete task -->
 		<button
-			class=" flex h-6 w-6 items-center justify-center rounded-full border-2 border-todoist-{taskData.priority} bg-opacity-50 bg-todoist-{taskData.priority} hover:bg-opacity-100"
-			on:click={() => {
-				dispatcher('complete', { taskId: taskData.id });
-			}}
+			class=" flex h-6 w-6 items-center justify-center rounded-full border-2 border-todoist-{task.priority} bg-opacity-50 bg-todoist-{task.priority} hover:bg-opacity-100"
+			on:click={completeTaskForward}
 		>
 			<Icon icon="carbon:checkmark" color="#ffffff" class="h-4 w-4" />
 		</button>
@@ -75,20 +84,20 @@
 		<div class="flex flex-1 flex-col">
 			<div class="flex flex-1 flex-row items-center justify-between">
 				<!-- task name -->
-				<h1 class="text-l flex-1">{taskData?.content}</h1>
+				<h1 class="text-l flex-1">{task.name}</h1>
 				<!-- edit button -->
-				<button class="h-max invisible group-hover:visible text-xs" on:click={toggleEdit}>
+				<button class="invisible h-max text-xs group-hover:visible" on:click={toggleEdit}>
 					<Icon icon="carbon:edit" color="#000000" class="h-4 w-4" />
 				</button>
 			</div>
 			<div class="flex flex-1 flex-row justify-between gap-8">
 				<!-- task project -->
-				<a class="text-xs" href={projectUrl} target="_blank" rel="noopener noreferrer"
-					>{projectName + (sectionName ? '/' + sectionName : '')}</a
+				<a class="text-xs" href={task.project.todoistURL} target="_blank" rel="noopener noreferrer"
+					>{task.project.name}</a
 				>
 
 				<!-- task due date -->
-				<p class="text-xs">{taskData.due.string}</p>
+				<p class="text-xs">{task.dueDate?.toDateString().slice(4, 10)}</p>
 			</div>
 		</div>
 	{/if}

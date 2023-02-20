@@ -1,89 +1,91 @@
-<script>
+<script lang="ts">
 	import { TodoistApi } from '@doist/todoist-api-typescript';
+	import type { Task as TaskType } from '@doist/todoist-api-typescript';
 	import { PUBLIC_TODOIST_API_TOKEN } from '$env/static/public';
 	console.log(PUBLIC_TODOIST_API_TOKEN);
 	const api = new TodoistApi(PUBLIC_TODOIST_API_TOKEN);
 	import Icon from '@iconify/svelte';
 	import Task from '$lib/components/task/Task.svelte';
+	import { projects, events } from '$lib/store/stores';
+	import type { ProjectType } from '$lib/types/project.type';
+	import type { EventType } from '$lib/types/event.type';
 
-	let tasksList = [];
-	let projectsList = [];
-	let sectionsList = [];
 	let add = false;
 	let addText = '';
+	
 
 	async function getTodoistData() {
-		// get projects
 		api
-			.getProjects()
-			.then((projects) => {
-				console.log(projects);
-				projectsList = projects;
-				// get sections
-				api
-					.getSections()
-					.then((sections) => {
-						console.log(sections);
-						sectionsList = sections;
-						// get tasks
-						api
-							.getTasks({ filter: 'today | overdue' })
-							.then((tasks) => {
-								tasksList = tasks;
-								console.log(tasksList);
-							})
-							.catch((error) => console.log(error));
-					})
-					.catch((error) => console.log(error));
+			.getTasks({ filter: 'today | overdue' })
+			.then((tasks) => {
+				console.log(tasks);
+				tasks.forEach((task) => {
+					events.addTodoistTask(taskToEvent(task));
+				});
 			})
 			.catch((error) => console.log(error));
-
-		console.log(tasksList, projectsList, sectionsList);
 	}
 
-	// get project, label from task
-	function getProjectLabelFromTask(task) {
-		let projectName, projectUrl, sectionName, sectionUrl;
-		projectsList.map((project) => {
-			if (project.id === task.projectId) {
-				projectName = project.name;
-				projectUrl = project.url;
-			}
-		});
-		sectionsList.map((section) => {
-			if (section.id === task.sectionId) {
-				sectionName = section.name;
-			}
-		});
-		console.log(projectName, projectUrl, sectionName);
-		return { projectName, projectUrl, sectionName };
+	// get project from task
+	function getProjectLabelFromTask(taskId: string): ProjectType {
+		var res = $projects.find((project) => project.todoistId == taskId);
+		if (res) {
+			return res;
+		} else {
+			throw new Error('Project not found');
+		}
+	}
+
+	function taskToEvent(task: TaskType): EventType {
+		var projectFound: ProjectType = getProjectLabelFromTask(
+			task.sectionId ? task.projectId + '/' + task.sectionId : task.projectId
+		);
+		console.log(projectFound);
+
+		console.log('project found');
+		return {
+			id: 'todo/' + task.id,
+			name: task.content,
+			url: task.url,
+			project: projectFound,
+			isTask: true,
+			completed: task.isCompleted,
+			dueDate: task.due ? new Date(task.due.date) : undefined,
+			priority: task.priority
+		};
 	}
 
 	// edit task function
-	function editTask(event) {
+	function editTask(event: CustomEvent<{ eventId: string; editText: string }>) {
+		console.log(event.detail.eventId.slice(5));
 		console.log(event.detail.editText);
 		api
-			.updateTask(event.detail.taskId, { content: event.detail.editText })
+			.updateTask(event.detail.eventId.slice(5), { content: event.detail.editText })
 			.then((task) => {
 				console.log(task);
+				events.addTodoistTask(taskToEvent(task));
 			})
 			.catch((error) => console.log(error));
 	}
 
 	// complete task function
-	function completeTask(event) {
+	function completeTask(event: CustomEvent<{ eventId: string }>) {
 		console.log('completed');
+		console.log(event.detail.eventId.slice(5));
 		api
-			.closeTask(event.detail.taskId)
-			.then((task) => console.log(task))
+			.closeTask(event.detail.eventId.slice(5))
+			.then((task) => {
+				console.log(task);
+				events.completeTodoistTask(event.detail.eventId);
+			})
 			.catch((error) => console.log(error));
 	}
 
 	// delete task function
-	function deleteTask(event) {
+	function deleteTask(event: CustomEvent<{ eventId: string }>) {
 		console.log('deleted');
 		api
-			.deleteTask(event.detail.taskId)
+			.deleteTask(event.detail.eventId)
 			.then((task) => console.log(task))
 			.catch((error) => console.log(error));
 	}
@@ -98,12 +100,15 @@
 		console.log(addText);
 		api
 			.addTask({ content: addText })
-			.then((task) => console.log(task))
+			.then((task) => events.addTodoistTask(taskToEvent(task)))
 			.catch((error) => console.log(error));
 	}
+
+	$: console.log($projects);
+	$: console.log($events);
 </script>
 
-<div class="flex w-full h-full flex-col items-start gap-2 rounded-xl bg-gray-300 p-3">
+<div class="flex h-full w-full flex-col items-start gap-2 rounded-xl bg-gray-300 p-3">
 	<div class="flex w-full flex-row items-center justify-between">
 		<!--  -->
 		<a
@@ -134,53 +139,44 @@
 	<!-- horizontal divider -->
 	<div class="h-0.5 w-full bg-gray-500" />
 
-	<div class="flex flex-col w-full items-center justify-center overflow-hidden">
-		{#await getTodoistData()}
-			<div>loading...</div>
-		{:then}
-			{#each tasksList as task}
-				<Task
-					taskData={task}
-					{...getProjectLabelFromTask(task)}
-					on:edit={editTask}
-					on:complete={completeTask}
-					on:delete={deleteTask}
-				/>
+	<div class="flex w-full flex-col items-center justify-center overflow-hidden">
+		{#if $events.length != 0}
+			{#each $events.filter((event) => event.isTask) as event}
+				<Task task={event} on:edit={editTask} on:complete={completeTask} on:delete={deleteTask} />
 				<!-- divider -->
 				<!-- <div class="h-[1px] w-full bg-gray-500" /> -->
 			{/each}
+		{/if}
+		{#if add}
+			<div class="m-4 flex w-full flex-col">
+				<input
+					id="addInput"
+					type="text"
+					class="flex-1 appearance-none rounded bg-transparent focus:border-todoist-4 focus:ring-0"
+					bind:value={addText}
+					on:keypress={(event) => {
+						if (event.key === 'Enter') {
+							addTask();
+						}
+					}}
+				/>
 
-			{#if add}
-				<div class="m-4 flex w-full flex-col">
-					<input
-						id="addInput"
-						type="text"
-						class="flex-1 appearance-none rounded bg-transparent focus:border-todoist-4 focus:ring-0"
-						bind:value={addText}
-						on:keypress={(event) => {
-							if (event.key === 'Enter') {
-								addTask();
-							}
-						}}
-					/>
-
-					<div class="my-1 flex justify-end gap-3">
-						<!-- cancel button -->
-						<button class="h-max" on:click={toggleAdd}>
-							<Icon icon="ic:baseline-close" color="#000000" class="h-6 w-6" />
-						</button>
-						<!-- save button -->
-						<button class="h-max rounded bg-todoist-4" on:click={addTask}>
-							<Icon icon="ic:round-send" color="#ffffff" class="m-0.5 h-5 w-5" />
-						</button>
-					</div>
+				<div class="my-1 flex justify-end gap-3">
+					<!-- cancel button -->
+					<button class="h-max" on:click={toggleAdd}>
+						<Icon icon="ic:baseline-close" color="#000000" class="h-6 w-6" />
+					</button>
+					<!-- save button -->
+					<button class="h-max rounded bg-todoist-4" on:click={addTask}>
+						<Icon icon="ic:round-send" color="#ffffff" class="m-0.5 h-5 w-5" />
+					</button>
 				</div>
-			{:else}
-				<!-- add task button -->
-				<button class="m-8 h-max" on:click={toggleAdd}>
-					<Icon icon="ic:baseline-add" color="#e44332" class="h-6 w-6" />
-				</button>
-			{/if}
-		{/await}
+			</div>
+		{:else}
+			<!-- add task button -->
+			<button class="m-8 h-max" on:click={toggleAdd}>
+				<Icon icon="ic:baseline-add" color="#e44332" class="h-6 w-6" />
+			</button>
+		{/if}
 	</div>
 </div>
