@@ -4,6 +4,7 @@
 	import type { EventType } from '$lib/types/event.type';
 
 	export let task: EventType;
+	export let project: ProjectType;
 
 	let edit = false;
 	let editText = '';

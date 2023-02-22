@@ -7,6 +7,7 @@
 	import Icon from '@iconify/svelte';
 	import CalendarEvent from './CalendarEvent.svelte';
 	import { events, projects } from '$lib/store/stores';
+	import { page } from '$app/stores';
 
 	let calendars = {
 		primary: 'primary',
@@ -34,6 +35,7 @@
 	let addCalendar = 'primary';
 
 	import { PUBLIC_GCAL_CLIENT_ID, PUBLIC_GCAL_API_KEY } from '$env/static/public';
+	import { supabaseClient } from '$lib/supabaseClient';
 
 	// TODO(developer): Set to client ID and API key from the Developer Console
 	const CLIENT_ID = PUBLIC_GCAL_CLIENT_ID;
@@ -60,10 +62,10 @@
 		document.body.appendChild(script);
 
 		// Load the Google Identity Services library
-		const script2 = document.createElement('script');
-		script2.src = 'https://accounts.google.com/gsi/client';
-		script2.onload = gisLoaded;
-		document.body.appendChild(script2);
+		// const script2 = document.createElement('script');
+		// script2.src = 'https://accounts.google.com/gsi/client';
+		// script2.onload = gisLoaded;
+		// document.body.appendChild(script2);
 		// gisLoaded();
 		// gapiLoaded();
 	});
@@ -109,7 +111,7 @@
 				throw resp;
 			}
 		};
-
+		
 		if (gapi.client.getToken() === null) {
 			// Prompt the user to select a Google Account and ask for consent to share their data
 			// when establishing a new session.
@@ -144,6 +146,12 @@
 	): Promise<Object[]> {
 		let response;
 		try {
+			if (!$page.data.session.provider_token){
+				supabaseClient.auth.refreshSession();
+			}
+			gapi.client.setToken({
+				access_token: $page.data.session.provider_token
+			});
 			const request = {
 				calendarId: calendars[calendarLabel],
 				timeMin: minDate.toISOString(),
@@ -324,24 +332,6 @@
 	$: console.log(loadedEvents);
 </script>
 
-<div
-	id="g_id_onload"
-	data-client_id="134944352773-is6uc47mcpe8qcfse1d9hks2smfj3meg.apps.googleusercontent.com"
-	data-context="signin"
-	data-ux_mode="popup"
-	data-callback="handleCredentialResponse"
-	data-auto_select="true"
-	data-itp_support="true"
-/>
-
-<div
-	class="g_id_signin"
-	data-type="icon"
-	data-shape="circle"
-	data-theme="outline"
-	data-text="signin_with"
-	data-size="large"
-/>
 <!--Add buttons to initiate auth sequence and sign out-->
 <button id="authorize_button" on:click={handleAuthClick}>Authorize</button>
 <button id="signout_button" on:click={handleSignoutClick}>Sign Out</button>

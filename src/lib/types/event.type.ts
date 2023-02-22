@@ -4,7 +4,7 @@ export type EventType = {
   id: string;
   name: string;
   url: string;
-  project: ProjectType;
+  project: string;
   isTask: boolean;
 
   //Todoist specific
@@ -13,6 +13,6 @@ export type EventType = {
   priority?: number;
 
   //Google Calendar specific
-  startDatetime?: Date;
-  endDatetime?: Date;
+  startDateTime?: Date;
+  endDateTime?: Date;
 };

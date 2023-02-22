@@ -9,34 +9,16 @@ function createProjects(initial: ProjectType[]) {
 
 	return {
 		subscribe,
-    addCalendarProject: (project: ProjectType) => {
+    addProject: (project: ProjectType) => {
 			update((projects) => {
 				if (projects) {
-          if (projects.find((i) => i.calendarId === project.calendarId)) {
+          if (projects.find((i) => i.id === project.id)) {
             return projects.map((i) => {
-              if (i.calendarId === project.calendarId) {
+              if (i.id === project.id) {
                 return project;
               }
               return i;
             });
-          } else {
-            return [...projects, project];
-          }
-				}
-				return [project];
-			});
-		},
-		addTodoistProject: (project: ProjectType) => {
-			update((projects) => {
-				if (projects) {
-          if (projects.find((i) => i.todoistId === project.todoistId)) {
-            return projects.map((i) => {
-              if (i.todoistId === project.todoistId) {
-                return project;
-              }
-              return i;
-            });
-
           } else {
             return [...projects, project];
           }
@@ -119,3 +101,5 @@ function createTokenClient (){
 export let events = createEvents([]);
 export const projects = createProjects([]);
 export const tokenClient = createTokenClient();
+
+export const user = writable([]);

@@ -7,6 +7,8 @@
 	import { projects, events } from '$lib/store/stores';
 	import type { ProjectType } from '$lib/types/project.type';
 	import type { EventType } from '$lib/types/event.type';
+	import { eventStore } from '$lib/store/eventStore';
+	import { projectStore } from '$lib/store/projectStore';
 
 	let add = false;
 	let addText = '';
@@ -20,34 +22,23 @@
 			.then((tasks) => {
 				console.log(tasks);
 				tasks.forEach((task) => {
-					events.addTodoistTask(taskToEvent(task));
+					console.log(task);
+					eventStore.addEvent(taskToEvent(task));
 				});
 			})
 			.catch((error) => console.log(error));
 	}
 
-	// get project from task
-	function getProjectLabelFromTask(taskId: string): ProjectType {
-		var res = $projects.find((project) => project.todoistId == taskId);
-		if (res) {
-			return res;
-		} else {
-			throw new Error('Project not found');
-		}
-	}
 
 	function taskToEvent(task: TaskType): EventType {
-		var projectFound: ProjectType = getProjectLabelFromTask(
-			task.sectionId ? task.projectId + '/' + task.sectionId : task.projectId
-		);
-		console.log(projectFound);
+		var projectFoundId: string = 'todo/'+(task.sectionId ? task.projectId + '/' + task.sectionId : task.projectId);
 
 		console.log('project found');
 		return {
 			id: 'todo/' + task.id,
 			name: task.content,
 			url: task.url,
-			project: projectFound,
+			project: projectFoundId,
 			isTask: true,
 			completed: task.isCompleted,
 			dueDate: task.due ? new Date(task.due.date) : undefined,
@@ -63,7 +54,7 @@
 			.updateTask(event.detail.eventId.slice(5), { content: event.detail.editText })
 			.then((task) => {
 				console.log(task);
-				events.addTodoistTask(taskToEvent(task));
+				eventStore.addEvent(taskToEvent(task));
 			})
 			.catch((error) => console.log(error));
 	}
@@ -76,7 +67,7 @@
 			.closeTask(event.detail.eventId.slice(5))
 			.then((task) => {
 				console.log(task);
-				events.completeTodoistTask(event.detail.eventId);
+				eventStore.completeTask(event.detail.eventId);
 			})
 			.catch((error) => console.log(error));
 	}
@@ -86,7 +77,10 @@
 		console.log('deleted');
 		api
 			.deleteTask(event.detail.eventId)
-			.then((task) => console.log(task))
+			.then((task) => {
+				console.log(task);
+				eventStore.deleteTask(event.detail.eventId);
+			})
 			.catch((error) => console.log(error));
 	}
 
@@ -103,7 +97,9 @@
 			.then((task) => events.addTodoistTask(taskToEvent(task)))
 			.catch((error) => console.log(error));
 	}
-
+	eventStore.loadEvents();
+	$: console.log($eventStore)
+	$: console.log($projectStore)
 	$: console.log($projects);
 	$: console.log($events);
 </script>
@@ -140,9 +136,9 @@
 	<div class="h-0.5 w-full bg-gray-500" />
 
 	<div class="flex w-full flex-col items-center justify-center overflow-hidden">
-		{#if $events.length != 0}
-			{#each $events.filter((event) => event.isTask) as event}
-				<Task task={event} on:edit={editTask} on:complete={completeTask} on:delete={deleteTask} />
+		{#if $eventStore.length != 0}
+			{#each $eventStore.filter((event) => event.isTask) as event}
+				<Task task={event} project={$projectStore.filter((project)=> project.id == event.project)[0]} on:edit={editTask} on:complete={completeTask} on:delete={deleteTask} />
 				<!-- divider -->
 				<!-- <div class="h-[1px] w-full bg-gray-500" /> -->
 			{/each}
