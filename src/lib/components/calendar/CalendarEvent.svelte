@@ -1,35 +1,39 @@
 <script lang="ts">
+	import type { EventType } from '$lib/types/types';
 	import Icon from '@iconify/svelte';
 	import { createEventDispatcher } from 'svelte';
 
-	export let event;
+	export let event: EventType;
 
 	let edit = false;
 	let editSummary = '';
 	let editStart = '';
 	let editEnd = '';
 
-	const dispatcher = createEventDispatcher();
+	const dispatcher = createEventDispatcher<{
+		edit: { event: EventType };
+		delete: { eventId: string };
+	}>();
 
 	function toggleEdit() {
 		edit = !edit;
-		editSummary = event.summary;
-    editStart = event.start.dateTime.slice(0,19);
-    editEnd = event.end.dateTime.slice(0,19);
+		editSummary = event.name;
+    editStart = event.startDateTime?.slice(0,19);
+    editEnd = event.endDateTime?.slice(0,19);
 
 	}
 
 	function editEventForward() {
-		event.summary = editSummary;
-		event.start.dateTime = editStart.slice(0,16)+":00+01:00";
-		event.end.dateTime = editEnd.slice(0,16)+":00+01:00";
+		event.name = editSummary;
+		event.startDateTime = editStart.slice(0,16)+":00+01:00";
+		event.endDateTime = editEnd.slice(0,16)+":00+01:00";
 
-		dispatcher('edit', { calendarId: event.calendarId, eventId: event.id, event: event});
+		dispatcher('edit', { event: event});
 		toggleEdit();
 	}
 
 	function deleteEventForward() {
-		dispatcher('delete', { calendarId: event.calendarId, eventId: event.id});
+		dispatcher('delete', { eventId: event.id});
 		toggleEdit();
 	}
 </script>
@@ -76,9 +80,9 @@
 	{:else}
 		<div class="flex w-full flex-row items-between justify-between p-2">
 			<div class="group flex w-full flex-col items-start justify-start gap-1">
-				<h2 class="text-l font-bold">{event.summary}</h2>
+				<h2 class="text-l font-bold">{event.name}</h2>
 				<p class="text-m ">
-					{event.start.dateTime.slice(11, 16) + ' - ' + event.end.dateTime.slice(11, 16)}
+					{event.startDateTime.slice(11, 16) + ' - ' + event.endDateTime.slice(11, 16)}
 				</p>
 			</div>
       <div class="flex flex-col items-center justify-center">

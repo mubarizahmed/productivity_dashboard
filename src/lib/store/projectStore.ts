@@ -12,7 +12,7 @@ function createProjects(initial: ProjectType[]) {
 	return {
 		subscribe,
 		loadProjects: async () => {
-			const { data, error } = await supabaseClient.from('projects').select('*');
+			const { data, error } = await supabaseClient.from('projects').select();
 			if (error) {
 				console.log('error', error);
 			} else {
@@ -38,7 +38,7 @@ function createProjects(initial: ProjectType[]) {
 				if (error) {
 					console.log('error', error);
 				} else {
-					console.log('data', data);
+					// console.log('data', data);
 					update((projects) => {
             if (projects) {
               if (projects.find((i) => i.id === data[0].id)) {

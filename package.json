@@ -21,6 +21,7 @@
 		"prettier": "^2.8.4",
 		"prettier-plugin-svelte": "^2.9.0",
 		"prettier-plugin-tailwindcss": "^0.2.2",
+		"supabase": "^1.38.7",
 		"svelte": "^3.54.0",
 		"svelte-check": "^3.0.1",
 		"svelte-dnd-action": "^0.9.22",
@@ -38,6 +39,7 @@
 		"@types/gapi": "^0.0.44",
 		"gapi-script": "^1.2.0",
 		"googleapis": "^111.0.0",
+		"openapi-typescript": "^5.0.0",
 		"react-google-calendar-api": "^2.1.0"
 	}
 }

@@ -1,107 +1,42 @@
 <script lang="ts">
-	import { TodoistApi } from '@doist/todoist-api-typescript';
-	import type { Task as TaskType } from '@doist/todoist-api-typescript';
-	import { PUBLIC_TODOIST_API_TOKEN } from '$env/static/public';
+
 	import Icon from '@iconify/svelte';
 	import Task from '$lib/components/task/Task.svelte';
-	import { projects, events } from '$lib/store/stores';
-	import type { ProjectType } from '$lib/types/project.type';
-	import type { EventType } from '$lib/types/event.type';
+
+	import type { EventType } from '$lib/types/types';
 	import { eventStore } from '$lib/store/eventStore';
 	import { projectStore } from '$lib/store/projectStore';
 
 	let add = false;
 	let addText = '';
-	
-	console.log(PUBLIC_TODOIST_API_TOKEN);
-	const api = new TodoistApi(PUBLIC_TODOIST_API_TOKEN);
 
-	async function getTodoistData() {
-		api
-			.getTasks({ filter: 'today | overdue' })
-			.then((tasks) => {
-				console.log(tasks);
-				tasks.forEach((task) => {
-					console.log(task);
-					eventStore.addEvent(taskToEvent(task));
-				});
-			})
-			.catch((error) => console.log(error));
+	// Handlers
+	function editTask(event: CustomEvent<{ event: EventType }>) {
+		console.log('editTask', event);
+		eventStore.editTask(event.detail.event);
 	}
-
-
-	function taskToEvent(task: TaskType): EventType {
-		var projectFoundId: string = 'todo/'+(task.sectionId ? task.projectId + '/' + task.sectionId : task.projectId);
-
-		console.log('project found');
-		return {
-			id: 'todo/' + task.id,
-			name: task.content,
-			url: task.url,
-			project: projectFoundId,
-			isTask: true,
-			completed: task.isCompleted,
-			dueDate: task.due ? new Date(task.due.date) : undefined,
-			priority: task.priority
-		};
-	}
-
-	// edit task function
-	function editTask(event: CustomEvent<{ eventId: string; editText: string }>) {
-		console.log(event.detail.eventId.slice(5));
-		console.log(event.detail.editText);
-		api
-			.updateTask(event.detail.eventId.slice(5), { content: event.detail.editText })
-			.then((task) => {
-				console.log(task);
-				eventStore.addEvent(taskToEvent(task));
-			})
-			.catch((error) => console.log(error));
-	}
-
-	// complete task function
-	function completeTask(event: CustomEvent<{ eventId: string }>) {
-		console.log('completed');
-		console.log(event.detail.eventId.slice(5));
-		api
-			.closeTask(event.detail.eventId.slice(5))
-			.then((task) => {
-				console.log(task);
-				eventStore.completeTask(event.detail.eventId);
-			})
-			.catch((error) => console.log(error));
-	}
-
-	// delete task function
 	function deleteTask(event: CustomEvent<{ eventId: string }>) {
-		console.log('deleted');
-		api
-			.deleteTask(event.detail.eventId)
-			.then((task) => {
-				console.log(task);
-				eventStore.deleteTask(event.detail.eventId);
-			})
-			.catch((error) => console.log(error));
+		console.log('deleteTask', event.detail.eventId);
+		eventStore.deleteTask(event.detail.eventId);
 	}
-
+	function completeTask(event: CustomEvent<{ eventId: string, completed: boolean }>) {
+		console.log('completeTask', event.detail.eventId);
+		eventStore.completeTask(event.detail.eventId, event.detail.completed);
+	}
 	// toggle add
 	function toggleAdd() {
 		add = !add;
 	}
 
-	// add task function
+	// add task
 	function addTask() {
-		console.log(addText);
-		api
-			.addTask({ content: addText })
-			.then((task) => events.addTodoistTask(taskToEvent(task)))
-			.catch((error) => console.log(error));
+		console.log('addTask', addText);
+		eventStore.addTask({name: addText, id: 'newTask'});
+		addText = '';
+		toggleAdd();
 	}
-	eventStore.loadEvents();
-	$: console.log($eventStore)
-	$: console.log($projectStore)
-	$: console.log($projects);
-	$: console.log($events);
+
+
 </script>
 
 <div class="flex h-full w-full flex-col items-start gap-2 rounded-xl bg-gray-300 p-3">
@@ -128,7 +63,7 @@
 		<h1 class="justify-center text-left text-2xl">Tasks</h1>
 
 		<!-- refresh button -->
-		<button class="h-max" on:click={getTodoistData}>
+		<button class="h-max" on:click={eventStore.loadTodoistEvents}>
 			<Icon icon="material-symbols:refresh" color="#e44332" class="h-6 w-6" />
 		</button>
 	</div>
@@ -136,9 +71,15 @@
 	<div class="h-0.5 w-full bg-gray-500" />
 
 	<div class="flex w-full flex-col items-center justify-center overflow-hidden">
-		{#if $eventStore.length != 0}
+		{#if $eventStore.length != 0 && $projectStore.length != 0}
 			{#each $eventStore.filter((event) => event.isTask) as event}
-				<Task task={event} project={$projectStore.filter((project)=> project.id == event.project)[0]} on:edit={editTask} on:complete={completeTask} on:delete={deleteTask} />
+				<Task
+					task={event}
+					project={$projectStore.filter((project) => project.id == event.projectId)[0]}
+					on:delete={deleteTask}
+					on:complete={completeTask}
+					on:edit={editTask}
+				/>
 				<!-- divider -->
 				<!-- <div class="h-[1px] w-full bg-gray-500" /> -->
 			{/each}

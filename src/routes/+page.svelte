@@ -5,8 +5,11 @@
 	import CalendarView from '$lib/components/calendar/CalendarView.svelte';
 	import Timeline from '$lib/components/timeline/Timeline.svelte';
 	import Projects from '$lib/components/projects/Projects.svelte';
-	import { projects, user } from '$lib/store/stores';
+	import { user } from '$lib/store/stores';
+	import { projectStore } from '$lib/store/projectStore';
 	import { page } from '$app/stores';
+	import { eventStore } from '$lib/store/eventStore';
+	import { listEvents } from '$lib/functions/GCal';
 	let loadedEvents = new Array<Object>();
 	let todayEvents = new Array<Object>();
 	let todayDate = new Date();
@@ -15,18 +18,30 @@
 	// get tommorow's date
 	let tomorrowDate = new Date(todayDate);
 	tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+	let loaded = false;
 
 	$: console.log($page.data);
+	// on auth
 	$: {
-		user.set($page.data.session?.user);
+		if ($page.data.session?.user) {
+			user.set($page.data.session?.user);
+			eventStore.clear();
+			projectStore.loadProjects().then(() => {
+				eventStore.loadEvents().then(() => {
+					loaded = true;
+				});
+			});
+			eventStore.loadCalendarEvents();
+		}
+	}
+	function listTodayEvents(){
+		listEvents(todayDate,tomorrowDate,'primary');
 	}
 </script>
 
+<Auth />
 
-	<Auth />
-
-	{#if $page.data.session?.user}
-
+{#if $page.data.session?.user}
 	<div class="flex min-h-screen flex-col items-center justify-start gap-16 p-16">
 		<div class="flex h-20 w-full flex-row items-center justify-evenly gap-16">
 			<div
@@ -42,20 +57,23 @@
 		</div>
 		<div class="flex w-full flex-row items-start justify-evenly gap-16">
 			<div class="flex h-full flex-[1]">
-				<Projects />
-				<TaskView />
+				{#if loaded}
+					<Projects />
+					<TaskView />
+				{/if}
 			</div>
 			<div
 				class="flex min-h-full flex-[1] flex-col items-center justify-start rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 p-4"
 			>
 				<h2 class="text-2xl">Timeline</h2>
-				<Timeline bind:events={todayEvents} bind:todayDate />
+				<!-- <Timeline bind:events={todayEvents} bind:todayDate /> -->
 			</div>
 			<div
 				class="flex min-h-full flex-[1] flex-col items-center justify-start rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 p-4"
 			>
+			<button id="list_events" on:click={listTodayEvents}>List Events</button>
 				<h2 class="text-2xl ">Upcoming Tasks</h2>
-				<CalendarView bind:loadedEvents bind:todayEvents bind:todayDate bind:tomorrowDate />
+				<CalendarView />
 			</div>
 		</div>
 	</div>

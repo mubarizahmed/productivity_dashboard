@@ -1,18 +1,18 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { createEventDispatcher } from 'svelte';
-	import type { EventType } from '$lib/types/event.type';
+	import type { EventType, ProjectType } from '$lib/types/types';
 
 	export let task: EventType;
 	export let project: ProjectType;
-
+	console.log('taskProject', project);
 	let edit = false;
 	let editText = '';
 
 	const dispatcher = createEventDispatcher<{
-		edit: { eventId: string; editText: string };
+		edit: { event: EventType };
 		delete: { eventId: string };
-		complete: { eventId: string };
+		complete: { eventId: string, completed: boolean };
 	}>();
 
 	function toggleEdit() {
@@ -22,16 +22,18 @@
 
 	function editTaskForward() {
 		console.log(task.id);
-		dispatcher('edit', { eventId: task.id, editText: editText });
+		task.name = editText;
+		dispatcher('edit', { event: task });
 		toggleEdit();
 	}
 
 	function deleteTaskForward() {
 		dispatcher('delete', { eventId: task.id });
+		toggleEdit();
 	}
 
 	function completeTaskForward() {
-		dispatcher('complete', { eventId: task.id });
+		dispatcher('complete', { eventId: task.id, completed: !task.completed });
 	}
 
 </script>
@@ -74,6 +76,7 @@
 			</div>
 		</div>
 	{:else}
+		
 		<!-- circular button color coded based on priority, click to complete task -->
 		<button
 			class=" flex h-6 w-6 items-center justify-center rounded-full border-2 border-todoist-{task.priority} bg-opacity-50 bg-todoist-{task.priority} hover:bg-opacity-100"
@@ -93,12 +96,12 @@
 			</div>
 			<div class="flex flex-1 flex-row justify-between gap-8">
 				<!-- task project -->
-				<a class="text-xs" href={task.project.todoistURL} target="_blank" rel="noopener noreferrer"
-					>{task.project.name}</a
+				<a class="text-xs" href={project.todoistURL} target="_blank" rel="noopener noreferrer"
+					>{project.name}</a
 				>
 
 				<!-- task due date -->
-				<p class="text-xs">{task.dueDate?.toDateString().slice(4, 10)}</p>
+				<p class="text-xs">{task.dueDate?.slice(4, 10)}</p>
 			</div>
 		</div>
 	{/if}
