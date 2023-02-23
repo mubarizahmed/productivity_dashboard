@@ -29,7 +29,7 @@ export type CalendarType = {
 	};
 	start: {
 		date: string;
-		dateTime: Date;
+		dateTime: string;
 		timeZone: string;
 	};
 	end: {

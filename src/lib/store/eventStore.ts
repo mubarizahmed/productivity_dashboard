@@ -43,6 +43,7 @@ function createEvents(initial: EventType[]) {
 			if (error) {
 				console.log('error', error);
 			} else {
+				console.log('data', data);
 				upvertEvent(data[0]);
 			}
 		});
@@ -160,6 +161,7 @@ function createEvents(initial: EventType[]) {
 			});
 		},
 		editCalendarEvent: async (event: EventType) => {
+			console.log('editCalendarEvent', event);
 			page.subscribe(async (p) => {
 				if (p.data?.session?.provider_token) {
 					editCalendarEvent(event, p.data.session.provider_token).then((res) => {

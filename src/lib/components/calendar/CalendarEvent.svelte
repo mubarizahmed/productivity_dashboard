@@ -25,8 +25,8 @@
 
 	function editEventForward() {
 		event.name = editSummary;
-		event.startDateTime = editStart.slice(0,16)+":00+01:00";
-		event.endDateTime = editEnd.slice(0,16)+":00+01:00";
+		event.startDateTime = editStart.slice(0,16);
+		event.endDateTime = editEnd.slice(0,16);
 
 		dispatcher('edit', { event: event});
 		toggleEdit();
