@@ -97,7 +97,7 @@
     return $projects.find((project) => project.todoistId === id);
   }
 	
-	$: console.log($projectStore);
-  $: console.log($projects);
+	// $: console.log($projectStore);
+  // $: console.log($projects);
 </script>
 

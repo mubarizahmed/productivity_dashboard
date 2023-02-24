@@ -1,10 +1,9 @@
 <script lang="ts">
-
 	import Icon from '@iconify/svelte';
 	import Task from '$lib/components/task/Task.svelte';
 
 	import type { EventType } from '$lib/types/types';
-	import { eventStore } from '$lib/store/eventStore';
+	import { eventStore, todayTasks } from '$lib/store/eventStore';
 	import { projectStore } from '$lib/store/projectStore';
 
 	let add = false;
@@ -19,9 +18,9 @@
 		console.log('deleteTask', event.detail.eventId);
 		eventStore.deleteTask(event.detail.eventId);
 	}
-	function completeTask(event: CustomEvent<{ eventId: string, completed: boolean }>) {
-		console.log('completeTask', event.detail.eventId);
-		eventStore.completeTask(event.detail.eventId, event.detail.completed);
+	function completeTask(event: CustomEvent<{ event: EventType }>) {
+		console.log('completeTask', event.detail.event);
+		eventStore.completeTask(event.detail.event);
 	}
 	// toggle add
 	function toggleAdd() {
@@ -31,15 +30,17 @@
 	// add task
 	function addTask() {
 		console.log('addTask', addText);
-		eventStore.addTask({name: addText, id: 'newTask'});
+		eventStore.addTask({ name: addText, id: 'newTask' });
 		addText = '';
 		toggleAdd();
 	}
 
-
+	$: console.log('todayTasks', $todayTasks);
 </script>
 
-<div class="flex h-full w-full flex-col items-start gap-2 rounded-xl bg-gray-300 p-3">
+<div
+	class="flex h-full w-full flex-col items-start gap-2 rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 text-cool-gray drop-shadow-2xl"
+>
 	<div class="flex w-full flex-row items-center justify-between">
 		<!--  -->
 		<a
@@ -50,7 +51,7 @@
 		>
 			<!-- <img src={TodoistIcon} class="h-6 w-6 hover:fill-[#e44332]" /> -->
 			<svg
-				class="h-6 w-6 hover:fill-[#e44332]"
+				class="h-6 w-6 fill-cool-gray hover:fill-[#e44332]"
 				role="img"
 				viewBox="0 0 24 24"
 				xmlns="http://www.w3.org/2000/svg"
@@ -68,11 +69,11 @@
 		</button>
 	</div>
 	<!-- horizontal divider -->
-	<div class="h-0.5 w-full bg-gray-500" />
+	<!-- <div class="h-0.5 w-full bg-gray-500" /> -->
 
-	<div class="flex w-full flex-col items-center justify-center overflow-hidden">
+	<div class="flex w-full flex-col items-center justify-center overflow-hidden py-2">
 		{#if $eventStore.length != 0 && $projectStore.length != 0}
-			{#each $eventStore.filter((event) => event.isTask) as event}
+			{#each $todayTasks as event}
 				<Task
 					task={event}
 					project={$projectStore.filter((project) => project.id == event.projectId)[0]}

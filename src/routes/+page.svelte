@@ -34,47 +34,45 @@
 			eventStore.loadCalendarEvents();
 		}
 	}
-	function listTodayEvents(){
-		listEvents(todayDate,tomorrowDate,'primary');
+	function listTodayEvents() {
+		listEvents(todayDate, tomorrowDate, 'primary');
 	}
 </script>
 
-<Auth />
-
-{#if $page.data.session?.user}
-	<div class="flex min-h-screen flex-col items-center justify-start gap-16 p-16">
-		<div class="flex h-20 w-full flex-row items-center justify-evenly gap-16">
-			<div
-				class="flex h-full flex-[1] items-center justify-start rounded-xl bg-gradient-to-r from-neutral-300 to-stone-400 p-4"
-			>
-				<h1 class="text-2xl ">LAST 7 DAYS</h1>
-			</div>
-			<div
-				class="flex h-full flex-[3] items-center justify-start rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 p-4"
-			>
-				<h1 class="text-3xl ">Dashboard</h1>
-			</div>
+<div
+	class="ml-12 flex min-h-screen w-full  flex-col items-center justify-start gap-16 bg-rich-black p-16"
+>
+	<div class="flex h-20 w-full flex-row items-center justify-evenly gap-16">
+		<div
+			class="flex h-full flex-[1] items-center justify-start rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 drop-shadow-2xl"
+		>
+			<h1 class="text-2xl text-white ">LAST 7 DAYS</h1>
 		</div>
-		<div class="flex w-full flex-row items-start justify-evenly gap-16">
-			<div class="flex h-full flex-[1]">
-				{#if loaded}
-					<Projects />
-					<TaskView />
-				{/if}
-			</div>
-			<div
-				class="flex min-h-full flex-[1] flex-col items-center justify-start rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 p-4"
-			>
-				<h2 class="text-2xl">Timeline</h2>
-				<!-- <Timeline bind:events={todayEvents} bind:todayDate /> -->
-			</div>
-			<div
-				class="flex min-h-full flex-[1] flex-col items-center justify-start rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 p-4"
-			>
-			<button id="list_events" on:click={listTodayEvents}>List Events</button>
-				<h2 class="text-2xl ">Upcoming Tasks</h2>
-				<CalendarView />
-			</div>
+		<div
+			class="flex h-full flex-[3] items-center justify-start rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 drop-shadow-2xl"
+		>
+			<h1 class="text-3xl text-white">Dashboard</h1>
 		</div>
 	</div>
-{/if}
+	<div class="flex w-full flex-row items-start justify-evenly gap-16">
+		<div class="flex h-full flex-[1]">
+			{#if loaded}
+				<Projects />
+				<TaskView />
+			{/if}
+		</div>
+		<div
+			class="flex min-h-full flex-[1] flex-col items-center justify-start rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 drop-shadow-2xl"
+		>
+			<h2 class="text-2xl text-white">Timeline</h2>
+			<Timeline />
+		</div>
+		<div
+			class="flex min-h-full flex-[1] flex-col items-center justify-start rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 drop-shadow-2xl"
+		>
+			<button class="text-white" id="list_events" on:click={listTodayEvents}>List Events</button>
+			<h2 class="text-2xl text-white">Upcoming Tasks</h2>
+			<CalendarView />
+		</div>
+	</div>
+</div>

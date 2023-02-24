@@ -293,6 +293,8 @@ export interface definitions {
     user_id?: string;
     /** Format: boolean */
     isTask?: boolean;
+    /** Format: timestamp with time zone */
+    completedAt?: string;
   };
 }
 

@@ -5,6 +5,8 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { user } from '$lib/store/stores';
+	import Sidebar from '$lib/components/sidebar/Sidebar.svelte';
+	import Auth from '$lib/components/auth/Auth.svelte';
 
 	onMount(() => {
 		const {
@@ -24,5 +26,12 @@
     user.set(session?.user);
 	});
 </script>
+{#if !$page.data.session?.user}
+	<Auth />
+{:else}
+	<div class="flex h-full w-full gap-2">
+		<Sidebar />
+		<slot />
+	</div>
+{/if}
 
-<slot />

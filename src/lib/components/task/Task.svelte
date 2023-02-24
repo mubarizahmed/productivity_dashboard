@@ -6,13 +6,23 @@
 	export let task: EventType;
 	export let project: ProjectType;
 	console.log('taskProject', project);
+
+	// get project name
+	var projectNameArray = project.name.split('/');
+	let projectName: string;
+	$: projectName = projectNameArray[projectNameArray.length - 1];
+
+	// get due date
+	let dueDate: string;
+	$: if (task.dueDate) {dueDate = new Date(task.dueDate).toDateString().slice(4,10)}
+
 	let edit = false;
 	let editText = '';
 
 	const dispatcher = createEventDispatcher<{
 		edit: { event: EventType };
 		delete: { eventId: string };
-		complete: { eventId: string, completed: boolean };
+		complete: { event: EventType };
 	}>();
 
 	function toggleEdit() {
@@ -33,13 +43,12 @@
 	}
 
 	function completeTaskForward() {
-		dispatcher('complete', { eventId: task.id, completed: !task.completed });
+		dispatcher('complete', { event: task });
 	}
-
 </script>
 
 <div
-	class="group my-1 flex w-full flex-row items-center justify-start gap-2 rounded border border-gray-400 p-2"
+	class="group my-1 flex w-full flex-row items-center justify-start gap-2 rounded border border-space-cadet p-2"
 >
 	{#if edit}
 		<div class="flex w-full flex-col">
@@ -57,10 +66,7 @@
 
 			<div class="my-1 flex justify-between gap-3">
 				<!-- delete button -->
-				<button
-					class="h-max rounded hover:bg-todoist-4"
-					on:click={deleteTaskForward}
-				>
+				<button class="h-max rounded hover:bg-todoist-4" on:click={deleteTaskForward}>
 					<Icon icon="ic:baseline-delete-forever" color="#000000" class="h-6 w-6" />
 				</button>
 				<div class="flex gap-3">
@@ -76,32 +82,44 @@
 			</div>
 		</div>
 	{:else}
-		
 		<!-- circular button color coded based on priority, click to complete task -->
+		{#if !task.completed}
 		<button
 			class=" flex h-6 w-6 items-center justify-center rounded-full border-2 border-todoist-{task.priority} bg-opacity-50 bg-todoist-{task.priority} hover:bg-opacity-100"
 			on:click={completeTaskForward}
 		>
 			<Icon icon="carbon:checkmark" color="#ffffff" class="h-4 w-4" />
 		</button>
+		{:else}
+		<button
+			class=" flex h-6 w-6 items-center justify-center rounded-full border-2 border-todoist-{task.priority} bg-todoist-{task.priority} hover:bg-opacity-50"
+			on:click={completeTaskForward}
+		>
+
+		</button>
+		{/if}
 		<!-- Task content -->
 		<div class="flex flex-1 flex-col">
 			<div class="flex flex-1 flex-row items-center justify-between">
 				<!-- task name -->
-				<h1 class="text-l flex-1">{task.name}</h1>
+				<h1 class="flex-1 text-sm {task.completed ? "line-through":""}">{task.name}</h1>
+				<!-- start button -->
+				<button class="invisible h-max text-xs group-hover:visible mr-2">
+					<Icon icon="carbon:play" color="201E3Cff" class="h-4 w-4" />
+				</button>
 				<!-- edit button -->
 				<button class="invisible h-max text-xs group-hover:visible" on:click={toggleEdit}>
-					<Icon icon="carbon:edit" color="#000000" class="h-4 w-4" />
+					<Icon icon="carbon:edit" color="201E3Cff" class="h-4 w-4" />
 				</button>
 			</div>
 			<div class="flex flex-1 flex-row justify-between gap-8">
 				<!-- task project -->
 				<a class="text-xs" href={project.todoistURL} target="_blank" rel="noopener noreferrer"
-					>{project.name}</a
+					>{projectName}</a
 				>
 
 				<!-- task due date -->
-				<p class="text-xs">{task.dueDate?.slice(4, 10)}</p>
+				<p class="text-xs">{dueDate}</p>
 			</div>
 		</div>
 	{/if}

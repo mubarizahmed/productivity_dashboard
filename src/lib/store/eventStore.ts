@@ -2,8 +2,10 @@ import type { EventWithProject, EventType } from '$lib/types/types';
 import type { ProjectType } from '$lib/types/project.type';
 import { supabaseClient, db } from '$lib/supabaseClient';
 import { calendars, user } from '$lib/store/stores';
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import type { definitions } from '$lib/types/generated-types';
+import orderBy from 'lodash/orderBy';
+
 import {
 	getTodoistData,
 	completeTodoistTask,
@@ -17,6 +19,30 @@ import { page } from '$app/stores';
 
 function createEvents(initial: EventType[]) {
 	const { subscribe, set, update } = writable<Array<EventType>>(initial);
+
+	// const sortEvents = (events: Array<EventType>) => {
+	// 	return events.sort((a, b) => {
+	// 		if (a.isTask && b.isTask && a.priority && b.priority) {
+	// 			if (a.dueDate == b.dueDate) {
+	// 				return a.priority - b.priority;
+	// 			}
+	// 			if (!a.dueDate) {
+	// 				if (!b.dueDate) {
+	// 					return 0;
+	// 				}
+	// 				return 1;
+
+	// 			}
+	// 			return a.dueDate? - b.dueDate;
+	// 		} else if (!a.isTask && !b.isTask && a.startDateTime && b.startDateTime) {
+	// 			return Date.parse(a.startDateTime) - Date.parse(b.startDateTime);
+	// 		} else if (a.isTask && !b.isTask) {
+	// 			return 1;
+	// 		} else {
+	// 			return -1;
+	// 		}
+	// 	});
+
 	const upvertEvent = (event: EventType) => {
 		update((events) => {
 			console.log('upvertEvent', events);
@@ -97,22 +123,20 @@ function createEvents(initial: EventType[]) {
 			editTodoistTask(event);
 			addEvent(event);
 		},
-		completeTask: async (eventId: string, completed: boolean) => {
-			if (completed) {
-				if (!completeTodoistTask(eventId)) return;
+		completeTask: async (event: EventType) => {
+			var completedAt: Date | undefined;
+			if (!event.completed) {
+				if (!completeTodoistTask(event.id)) return;
+				event.completedAt = new Date().toISOString();
+				event.completed = true;
 			} else {
-				if (!reopenTodoistTask(eventId)) return;
+				if (!reopenTodoistTask(event.id)) return;
+				event.completedAt = undefined;
+				event.completed = false;
 			}
 
 			user.subscribe(async (user) => {
-				const { data, error } = await db
-					.events()
-					.upsert({
-						id: eventId,
-						completed: completed,
-						user_id: user.id
-					})
-					.select();
+				const { data, error } = await db.events().upsert(event).select();
 				if (error) {
 					console.log('error', error);
 				} else {
@@ -174,3 +198,32 @@ function createEvents(initial: EventType[]) {
 }
 
 export const eventStore = createEvents([]);
+
+export const todayTasks = derived(eventStore, (eventStore) => {
+	return orderBy(
+		eventStore.filter((event) => {
+			// check if event is a task, not completed or completed today, and due today or overdue
+			if (event.isTask) {
+				console.log('is task');
+				var todayDate = new Date();
+				todayDate.setHours(0, 0, 0, 0);
+				var tomorrowDate = new Date(todayDate);
+				tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+
+				if (event.completed && event.completedAt) {
+					console.log(Date.parse(event.completedAt), todayDate.valueOf());
+					if (Date.parse(event.completedAt) < todayDate.valueOf()) return false;
+				}
+				console.log('is not completed today task');
+				if (!event.dueDate) return false;
+				console.log('is not no due date task');
+				if (Date.parse(event.dueDate) > tomorrowDate.valueOf()) return false;
+				console.log('is today task');
+				return true;
+			}
+			return false;
+		}),
+		['completed','dueDate', 'priority',],
+		['asc','asc', 'desc',]
+	);
+});
