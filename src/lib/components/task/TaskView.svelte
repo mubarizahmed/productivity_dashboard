@@ -2,6 +2,7 @@
 	import Icon from '@iconify/svelte';
 	import Task from '$lib/components/task/Task.svelte';
 
+
 	import type { EventType } from '$lib/types/types';
 	import { eventStore, todayTasks } from '$lib/store/eventStore';
 	import { projectStore } from '$lib/store/projectStore';

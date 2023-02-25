@@ -227,3 +227,26 @@ export const todayTasks = derived(eventStore, (eventStore) => {
 		['asc','asc', 'desc',]
 	);
 });
+
+export const todayEvents = derived(eventStore, (eventStore) => {
+	return orderBy(
+		eventStore.filter((event) => {
+			// check if event is not a task, starts before tommorow and ends after today
+			if (!event.isTask) {
+				var todayDate = new Date();
+				todayDate.setHours(0, 0, 0, 0);
+				var tomorrowDate = new Date(todayDate);
+				tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+
+				if (event.startDateTime && event.endDateTime) {
+					if (Date.parse(event.endDateTime) > todayDate.valueOf() && Date.parse(event.startDateTime) < tomorrowDate.valueOf()) return true;
+				}
+
+				return false;
+			}
+			return false;
+		}),
+		['start'],
+		['asc']
+	);
+});

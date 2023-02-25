@@ -37,6 +37,7 @@
 		"@doist/todoist-api-typescript": "^2.1.2",
 		"@fullcalendar/common": "^5.11.4",
 		"@fullcalendar/core": "^5.0.0",
+		"@fullcalendar/interaction": "^5.11.4",
 		"@fullcalendar/timegrid": "^5.0.0",
 		"@macfja/svelte-persistent-store": "^2.2.1",
 		"@supabase/auth-helpers-sveltekit": "^0.8.7",

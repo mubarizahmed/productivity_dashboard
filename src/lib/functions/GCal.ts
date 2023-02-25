@@ -67,8 +67,8 @@ function calendarToEvent(cal: CalendarType, calId: string) {
 		completed: undefined,
 		dueDate: undefined,
 		priority: undefined,
-		startDateTime: cal.start.dateTime.slice(0, 19),
-		endDateTime: cal.end.dateTime.slice(0, 19),
+		startDateTime: cal.start.dateTime,
+		endDateTime: cal.end.dateTime,
 		isTask: false
 	};
 }
@@ -83,10 +83,10 @@ export async function editCalendarEvent(event: EventType, provider_token: string
     body: JSON.stringify({
       summary: event.name,
       start: {
-        dateTime: event.startDateTime + ":00+01:00"
+        dateTime: event.startDateTime
       },
       end: {
-        dateTime: event.endDateTime + ":00+01:00"
+        dateTime: event.endDateTime 
       }
     })
   });

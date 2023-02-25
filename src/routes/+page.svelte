@@ -35,7 +35,7 @@
 		}
 	}
 	function listTodayEvents() {
-		listEvents(todayDate, tomorrowDate, 'primary');
+		eventStore.loadCalendarEvents();
 	}
 </script>
 
@@ -61,18 +61,13 @@
 				<TaskView />
 			{/if}
 		</div>
+
+		<Timeline />
+
 		<div
 			class="flex min-h-full flex-[1] flex-col items-center justify-start rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 drop-shadow-2xl"
 		>
-			<h2 class="text-2xl text-white">Timeline</h2>
-			<Timeline />
-		</div>
-		<div
-			class="flex min-h-full flex-[1] flex-col items-center justify-start rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 drop-shadow-2xl"
-		>
-			<button class="text-white" id="list_events" on:click={listTodayEvents}>List Events</button>
-			<h2 class="text-2xl text-white">Upcoming Tasks</h2>
-			<CalendarView />
+
 		</div>
 	</div>
 </div>
