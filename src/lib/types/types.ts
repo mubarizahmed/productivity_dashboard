@@ -3,6 +3,7 @@ import type { definitions } from './generated-types';
 export type ProjectType = definitions['projects'];
 export type EventType = definitions['events'];
 export type EventWithProject = EventType & { project: ProjectType };
+export type TimerType = definitions['timers'];
 export type CalendarType = {
 	kind: 'calendar#event';
 	etag: string;

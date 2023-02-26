@@ -5,6 +5,7 @@
 	import '@fullcalendar/core/vdom';
 
 	import { Draggable } from 'svelte-fullcalendar';
+	import { timerStore } from '$lib/store/timerStore';
 	import type { EventType, ProjectType } from '$lib/types/types';
 
 	export let task: EventType;
@@ -50,6 +51,11 @@
 
 	function completeTaskForward() {
 		dispatcher('complete', { event: task });
+	}
+
+	function startTimer() {
+		console.log('start timer');
+		timerStore.startTimer(task.id, new Date());
 	}
 </script>
 
@@ -112,7 +118,7 @@
 					<!-- task name -->
 					<h1 class="flex-1 text-sm {task.completed ? 'line-through' : ''}">{task.name}</h1>
 					<!-- start button -->
-					<button class="invisible mr-2 h-max text-xs group-hover:visible">
+					<button class="invisible mr-2 h-max text-xs group-hover:visible" on:click={startTimer}>
 						<Icon icon="carbon:play" color="201E3Cff" class="h-4 w-4" />
 					</button>
 					<!-- edit button -->

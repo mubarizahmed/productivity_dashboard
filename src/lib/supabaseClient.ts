@@ -9,4 +9,5 @@ export const supabaseClient = createClient(env.PUBLIC_SUPABASE_URL, env.PUBLIC_S
 export const db = {
 	events: () => supabaseClient.from('events'),
 	projects: () => supabaseClient.from('projects'),
+	timers: () => supabaseClient.from('timers'),
 };

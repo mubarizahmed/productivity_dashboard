@@ -10,6 +10,8 @@
 	import { page } from '$app/stores';
 	import { eventStore } from '$lib/store/eventStore';
 	import { listEvents } from '$lib/functions/GCal';
+	import Current from '$lib/components/current/Current.svelte';
+	import Lastweek from '$lib/components/lastweek/Lastweek.svelte';
 	let loadedEvents = new Array<Object>();
 	let todayEvents = new Array<Object>();
 	let todayDate = new Date();
@@ -40,34 +42,26 @@
 </script>
 
 <div
-	class="ml-12 flex min-h-screen w-full  flex-col items-center justify-start gap-16 bg-rich-black p-16"
+	class="ml-12 flex min-h-screen w-full  flex-col items-center justify-start gap-8 bg-rich-black p-8"
 >
-	<div class="flex h-20 w-full flex-row items-center justify-evenly gap-16">
+	<div class="flex h-32 w-full flex-row items-center justify-evenly gap-8">
+		<Lastweek />
 		<div
-			class="flex h-full flex-[1] items-center justify-start rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 drop-shadow-2xl"
+			class="flex h-full flex-[1] items-center justify-center rounded-xl  p-4 "
 		>
-			<h1 class="text-2xl text-white ">LAST 7 DAYS</h1>
+			<h1 class="text-2xl text-cool-gray ">Welcome, {$user.user_metadata.full_name.split(" ")[0]}</h1>
 		</div>
-		<div
-			class="flex h-full flex-[3] items-center justify-start rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 drop-shadow-2xl"
-		>
-			<h1 class="text-3xl text-white">Dashboard</h1>
-		</div>
+		<Current />
 	</div>
-	<div class="flex w-full flex-row items-start justify-evenly gap-16">
-		<div class="flex h-full flex-[1]">
-			{#if loaded}
-				<Projects />
-				<TaskView />
-			{/if}
-		</div>
+	<div class="flex w-full flex-row items-start justify-evenly gap-8">
+		{#if loaded}
+			<TaskView />
 
-		<Timeline />
+			<Timeline />
 
-		<div
-			class="flex min-h-full flex-[1] flex-col items-center justify-start rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 drop-shadow-2xl"
-		>
-
-		</div>
+			<div
+				class="flex min-h-full flex-[1] flex-col items-center justify-start rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 drop-shadow-2xl"
+			/>
+		{/if}
 	</div>
 </div>

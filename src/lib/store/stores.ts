@@ -3,6 +3,7 @@ import type { ProjectType } from '$lib/types/project.type';
 import { writable, type Writable } from 'svelte/store';
 import { persistBrowserLocal } from '@macfja/svelte-persistent-store';
 import type { User } from '@supabase/supabase-js';
+import type { TimerType } from '$lib/types/types';
 
 // export let projects = <ProjectType>(initial: []) => {
 function createProjects(initial: ProjectType[]) {
@@ -98,12 +99,25 @@ function createTokenClient (){
   }
 }
 
+function createCurrentTimer() {
+  const { subscribe, set, update } = writable<TimerType>();
+
+  return {
+    subscribe,
+    set,
+    update,
+    clear: () => set()
+  }
+}
+
 
 export let events = createEvents([]);
 export const projects = createProjects([]);
 export const tokenClient = createTokenClient();
 
 export const user = writable<User>();
+export const currentTimer = createCurrentTimer();
+
 export const calendars = writable({
   'primary': 'primary',
   'classes': '8tciba5ockfvb8rklc4hppqqao@group.calendar.google.com',

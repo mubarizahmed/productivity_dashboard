@@ -1,12 +1,31 @@
 <script lang="ts">
 	import '@fullcalendar/core/vdom';
-	import FullCalendar, { type CalendarOptions } from 'svelte-fullcalendar';
+	import FullCalendar, { type CalendarOptions, CalendarApi } from 'svelte-fullcalendar';
 	import timeGridPlugin from '@fullcalendar/timegrid';
 	import { eventStore, todayEvents } from '$lib/store/eventStore';
 	import interactionPlugin from '@fullcalendar/interaction';
 	import Icon from '@iconify/svelte';
 
 	let options: CalendarOptions;
+	let todayDate: Date = new Date();
+  let calendarRef;
+
+  function next() {
+    const calendarApi : CalendarApi = calendarRef.getAPI();
+    calendarApi.next();
+  }
+	function prev() {
+		const calendarApi : CalendarApi = calendarRef.getAPI();
+		calendarApi.prev();
+	}
+	function now() {
+		const calendarApi : CalendarApi = calendarRef.getAPI();
+		calendarApi.today();
+		todayDate = new Date();
+		options.scrollTime = new Date(todayDate.valueOf() - 7200000).toTimeString();
+	}
+	console.log('today date: ', todayDate.toTimeString());
+
 	$: options = {
 		plugins: [timeGridPlugin, interactionPlugin],
 		initialView: 'timeGridFourDay',
@@ -22,7 +41,7 @@
 		editable: true,
 		dayHeaders: false,
 		allDaySlot: false,
-		scrollTime: new Date().getTime(),
+		scrollTime: new Date(todayDate.valueOf() - 7200000).toTimeString(),
 		nowIndicator: true,
 		displayEventTime: false,
 		eventSources: [
@@ -126,8 +145,19 @@
 		</button>
 	</div>
 
+	<!-- row of buttons -->
+	<div class='flex justify-between w-full'>
+		<button class=' z-10' on:click={prev}>
+			<Icon class="h-6 w-6" icon="material-symbols:arrow-back" />
+		</button>
+		<button class=' z-10' on:click={now}>Today</button>
+		<button class=' z-10' on:click={next}>
+			<Icon class="h-6 w-6" icon="material-symbols:arrow-forward" />
+		</button>
+	</div>
+
 	<div class="h-80 w-full overflow-clip rounded-lg border border-space-cadet text-xs">
-		<FullCalendar {options} />
+		<FullCalendar bind:this={calendarRef} {options} />
 	</div>
 </div>
 

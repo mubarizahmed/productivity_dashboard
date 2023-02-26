@@ -135,6 +135,8 @@ export interface paths {
           endDateTime?: parameters["rowFilter.events.endDateTime"];
           user_id?: parameters["rowFilter.events.user_id"];
           isTask?: parameters["rowFilter.events.isTask"];
+          completedAt?: parameters["rowFilter.events.completedAt"];
+          scheduledId?: parameters["rowFilter.events.scheduledId"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -196,6 +198,8 @@ export interface paths {
           endDateTime?: parameters["rowFilter.events.endDateTime"];
           user_id?: parameters["rowFilter.events.user_id"];
           isTask?: parameters["rowFilter.events.isTask"];
+          completedAt?: parameters["rowFilter.events.completedAt"];
+          scheduledId?: parameters["rowFilter.events.scheduledId"];
         };
         header: {
           /** Preference */
@@ -221,10 +225,117 @@ export interface paths {
           endDateTime?: parameters["rowFilter.events.endDateTime"];
           user_id?: parameters["rowFilter.events.user_id"];
           isTask?: parameters["rowFilter.events.isTask"];
+          completedAt?: parameters["rowFilter.events.completedAt"];
+          scheduledId?: parameters["rowFilter.events.scheduledId"];
         };
         body: {
           /** events */
           events?: definitions["events"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
+  "/timers": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.timers.id"];
+          startedAt?: parameters["rowFilter.timers.startedAt"];
+          user_id?: parameters["rowFilter.timers.user_id"];
+          eventId?: parameters["rowFilter.timers.eventId"];
+          stoppedAt?: parameters["rowFilter.timers.stoppedAt"];
+          pausedDuration?: parameters["rowFilter.timers.pausedDuration"];
+          pausedAt?: parameters["rowFilter.timers.pausedAt"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["timers"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** timers */
+          timers?: definitions["timers"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferPost"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.timers.id"];
+          startedAt?: parameters["rowFilter.timers.startedAt"];
+          user_id?: parameters["rowFilter.timers.user_id"];
+          eventId?: parameters["rowFilter.timers.eventId"];
+          stoppedAt?: parameters["rowFilter.timers.stoppedAt"];
+          pausedDuration?: parameters["rowFilter.timers.pausedDuration"];
+          pausedAt?: parameters["rowFilter.timers.pausedAt"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.timers.id"];
+          startedAt?: parameters["rowFilter.timers.startedAt"];
+          user_id?: parameters["rowFilter.timers.user_id"];
+          eventId?: parameters["rowFilter.timers.eventId"];
+          stoppedAt?: parameters["rowFilter.timers.stoppedAt"];
+          pausedDuration?: parameters["rowFilter.timers.pausedDuration"];
+          pausedAt?: parameters["rowFilter.timers.pausedAt"];
+        };
+        body: {
+          /** timers */
+          timers?: definitions["timers"];
         };
         header: {
           /** Preference */
@@ -293,8 +404,37 @@ export interface definitions {
     user_id?: string;
     /** Format: boolean */
     isTask?: boolean;
-    /** Format: timestamp with time zone */
+    /** Format: timestamp without time zone */
     completedAt?: string;
+    /** Format: text */
+    scheduledId?: string;
+  };
+  timers: {
+    /**
+     * Format: text
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     */
+    id: string;
+    /**
+     * Format: timestamp with time zone
+     * @default now()
+     */
+    startedAt: string;
+    /** Format: uuid */
+    user_id: string;
+    /**
+     * Format: text
+     * @description Note:
+     * This is a Foreign Key to `events.id`.<fk table='events' column='id'/>
+     */
+    eventId: string;
+    /** Format: timestamp with time zone */
+    stoppedAt?: string;
+    /** Format: integer */
+    pausedDuration?: number;
+    /** Format: timestamp with time zone */
+    pausedAt?: string;
   };
 }
 
@@ -371,6 +511,26 @@ export interface parameters {
   "rowFilter.events.user_id": string;
   /** Format: boolean */
   "rowFilter.events.isTask": string;
+  /** Format: timestamp without time zone */
+  "rowFilter.events.completedAt": string;
+  /** Format: text */
+  "rowFilter.events.scheduledId": string;
+  /** @description timers */
+  "body.timers": definitions["timers"];
+  /** Format: text */
+  "rowFilter.timers.id": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.timers.startedAt": string;
+  /** Format: uuid */
+  "rowFilter.timers.user_id": string;
+  /** Format: text */
+  "rowFilter.timers.eventId": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.timers.stoppedAt": string;
+  /** Format: integer */
+  "rowFilter.timers.pausedDuration": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.timers.pausedAt": string;
 }
 
 export interface operations {}

@@ -40,7 +40,7 @@
 </script>
 
 <div
-	class="flex h-full w-full flex-col items-start gap-2 rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 text-cool-gray drop-shadow-2xl"
+	class="flex flex-[1] h-full w-full flex-col items-start gap-2 rounded-xl border-2 border-space-cadet bg-rich-black-2 p-4 text-cool-gray drop-shadow-2xl"
 >
 	<div class="flex w-full flex-row items-center justify-between">
 		<!--  -->
