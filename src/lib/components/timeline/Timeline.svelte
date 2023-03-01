@@ -5,24 +5,39 @@
 	import { eventStore, todayEvents } from '$lib/store/eventStore';
 	import interactionPlugin from '@fullcalendar/interaction';
 	import Icon from '@iconify/svelte';
+	import { openModal } from 'svelte-modals';
+	import TimelineEventModal from '$lib/components/timeline/TimelineEventModal.svelte';
 
 	let options: CalendarOptions;
 	let todayDate: Date = new Date();
-  let calendarRef;
+	let calendarRef;
+	let viewDate: Date;
 
-  function next() {
-    const calendarApi : CalendarApi = calendarRef.getAPI();
-    calendarApi.next();
-  }
+	$: {
+		if (calendarRef) {
+			if (calendarRef.getAPI()) {
+				const calendarApi: CalendarApi = calendarRef.getAPI();
+				viewDate = calendarApi.getDate();
+			}
+		}
+	}
+
+	function next() {
+		const calendarApi: CalendarApi = calendarRef.getAPI();
+		calendarApi.next();
+		viewDate = calendarApi.getDate();
+	}
 	function prev() {
-		const calendarApi : CalendarApi = calendarRef.getAPI();
+		const calendarApi: CalendarApi = calendarRef.getAPI();
 		calendarApi.prev();
+		viewDate = calendarApi.getDate();
 	}
 	function now() {
-		const calendarApi : CalendarApi = calendarRef.getAPI();
+		const calendarApi: CalendarApi = calendarRef.getAPI();
 		calendarApi.today();
 		todayDate = new Date();
 		options.scrollTime = new Date(todayDate.valueOf() - 7200000).toTimeString();
+		viewDate = calendarApi.getDate();
 	}
 	console.log('today date: ', todayDate.toTimeString());
 
@@ -39,6 +54,7 @@
 		headerToolbar: false,
 		height: '100%',
 		editable: true,
+		selectable: true,
 		dayHeaders: false,
 		allDaySlot: false,
 		scrollTime: new Date(todayDate.valueOf() - 7200000).toTimeString(),
@@ -107,6 +123,32 @@
 			// 	console.log('edit event: ', editEvent);
 			// 	eventStore.editCalendarEvent(editEvent);
 			// }
+		},
+		select: function (info) {
+			console.log('select event: ', info);
+			openModal(
+				TimelineEventModal,
+				{
+					id: '',
+					name: '',
+					add: true,
+					startDateTime: info.startStr.slice(0, 19),
+					endDateTime: info.endStr.slice(0, 19)
+				},
+				{
+					on: {
+						add: (event) => {
+							console.log('close modal', event.detail);
+							eventStore.addCalendarEvent(
+								event.detail.name,
+								event.detail.startDateTime,
+								event.detail.endDateTime,
+								event.detail.calendarId
+							);
+						}
+					}
+				}
+			);
 		}
 	};
 
@@ -146,12 +188,17 @@
 	</div>
 
 	<!-- row of buttons -->
-	<div class='flex justify-between w-full'>
-		<button class=' z-10' on:click={prev}>
+	<div class="flex w-full justify-between">
+		<button class=" z-10" on:click={prev}>
 			<Icon class="h-6 w-6" icon="material-symbols:arrow-back" />
 		</button>
-		<button class=' z-10' on:click={now}>Today</button>
-		<button class=' z-10' on:click={next}>
+		{#if viewDate && viewDate.getDate() !== new Date().getDate()}
+			<button class=" z-10" on:click={now}>{viewDate.toDateString().slice(4, 10)}</button>
+		{:else}
+			<button class=" z-10" on:click={now}>Today</button>
+		{/if}
+
+		<button class=" z-10" on:click={next}>
 			<Icon class="h-6 w-6" icon="material-symbols:arrow-forward" />
 		</button>
 	</div>
@@ -187,7 +234,7 @@
 			outline: 2px solid #0d0c1eff;
 			outline-offset: 0px;
 		}
-		.todo-event{
+		.todo-event {
 			padding: 4px;
 			border-radius: 4px;
 			border-width: 0px;

@@ -27,13 +27,17 @@
 	$: {
 		if ($page.data.session?.user) {
 			user.set($page.data.session?.user);
-			eventStore.clear();
-			projectStore.loadProjects().then(() => {
-				eventStore.loadEvents().then(() => {
-					loaded = true;
+			if ($eventStore.length === 0 || $projectStore.length === 0) {
+				console.log('loading events');
+				projectStore.loadProjects().then(() => {
+					eventStore.loadEvents().then(() => {
+						loaded = true;
+						// eventStore.loadCalendarEvents();
+					});
 				});
-			});
-			eventStore.loadCalendarEvents();
+			}
+			loaded = true;
+
 		}
 	}
 	function listTodayEvents() {
@@ -46,10 +50,10 @@
 >
 	<div class="flex h-32 w-full flex-row items-center justify-evenly gap-8">
 		<Lastweek />
-		<div
-			class="flex h-full flex-[1] items-center justify-center rounded-xl  p-4 "
-		>
-			<h1 class="text-2xl text-cool-gray ">Welcome, {$user.user_metadata.full_name.split(" ")[0]}</h1>
+		<div class="flex h-full flex-[1] items-center justify-center rounded-xl  p-4 ">
+			<h1 class="text-2xl text-cool-gray ">
+				Welcome, {$user.user_metadata.full_name.split(' ')[0]}
+			</h1>
 		</div>
 		<Current />
 	</div>

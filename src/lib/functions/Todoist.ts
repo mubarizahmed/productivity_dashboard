@@ -27,7 +27,7 @@ function taskToEvent(task: TaskType): EventType {
 export async function getTodoistData() {
 	var res: EventType[] = [];
 	var test = await api
-		.getTasks({ filter: 'today | overdue' })
+		.getTasks({ })
 		.then((tasks) => {
 			res = tasks.map((task) => {
 				return taskToEvent(task);

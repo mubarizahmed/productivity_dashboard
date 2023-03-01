@@ -121,6 +121,4 @@ export const currentTimer = createCurrentTimer();
 export const calendars = writable({
   'primary': 'primary',
   'classes': '8tciba5ockfvb8rklc4hppqqao@group.calendar.google.com',
-  'planner':
-    '4ae44282c14f6b5f93b3881395d3be21ef30c90e45a5c5d1512d456d403563bc@group.calendar.google.com'
 });

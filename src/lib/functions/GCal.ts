@@ -98,3 +98,29 @@ export async function editCalendarEvent(event: EventType, provider_token: string
     return true;
   }
 }
+
+export async function addCalendarEvent(name: string, startDateTime: string, endDateTime: string, calendarId: string, provider_token: string) {
+	console.log("add calendar event post", name, startDateTime, endDateTime, calendarId, provider_token);
+	const rs = await fetch('https://www.googleapis.com/calendar/v3/calendars/' + calendarId + '/events?key=' + API_KEY, {
+		method: 'POST',
+		headers: {
+			Authorization: 'Bearer ' + provider_token,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+      summary: name,
+      start: {
+        dateTime: startDateTime,
+      },
+      end: {
+        dateTime: endDateTime,
+      }
+    })
+	});
+	 console.log(rs);
+	const res = await rs.json();
+
+	if (rs.status == 200) {
+		return calendarToEvent(res, event.projectId.slice(5));
+	}
+}

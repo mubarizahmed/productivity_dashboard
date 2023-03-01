@@ -14,7 +14,7 @@ import {
 	deleteTodoistTask,
 	addTodoistTask
 } from '$lib/functions/Todoist';
-import { editCalendarEvent, listEvents } from '$lib/functions/GCal';
+import { editCalendarEvent, addCalendarEvent, listEvents } from '$lib/functions/GCal';
 import { page } from '$app/stores';
 
 function createEvents(initial: EventType[]) {
@@ -45,7 +45,7 @@ function createEvents(initial: EventType[]) {
 
 	const upvertEvent = (event: EventType) => {
 		update((events) => {
-			console.log('upvertEvent', events);
+			// console.log('upvertEvent', events);
 			if (events) {
 				if (events.find((i) => i.id === event.id)) {
 					return events.map((i) => {
@@ -69,7 +69,7 @@ function createEvents(initial: EventType[]) {
 			if (error) {
 				console.log('error', error);
 			} else {
-				console.log('data', data);
+				// console.log('data', data);
 				upvertEvent(data[0]);
 			}
 		});
@@ -161,16 +161,22 @@ function createEvents(initial: EventType[]) {
 			let todayDate = new Date();
 			todayDate.setHours(0, 0, 0, 0);
 			console.log(todayDate);
-			// get tommorow's date
+
+			// get weeks's date
+			let weekBeforeDate = new Date(todayDate);
+			weekBeforeDate.setDate(weekBeforeDate.getDate() - 7);
+
 			let weekDate = new Date(todayDate);
 			weekDate.setDate(weekDate.getDate() + 7);
+
+			console.log(weekBeforeDate, weekDate);
 
 			page.subscribe(async (p) => {
 				if (p.data?.session?.provider_token) {
 					calendars.subscribe(async (calendars) => {
 						for (var label in calendars) {
 							var events = await listEvents(
-								todayDate,
+								weekBeforeDate,
 								weekDate,
 								calendars[label],
 								p.data.session.provider_token
@@ -193,6 +199,27 @@ function createEvents(initial: EventType[]) {
 					});
 				}
 			});
+		},
+		addCalendarEvent: async (
+			name: string,
+			startDateTime: string,
+			endDateTime: string,
+			calendarId: string
+		) => {
+			console.log('addCalendarEvent');
+			page.subscribe(async (p) => {
+				if (p.data?.session?.provider_token) {
+					addCalendarEvent(
+						name,
+						startDateTime,
+						endDateTime,
+						calendarId,
+						p.data.session.provider_token
+					).then((res) => {
+						if (res) addEvent(event);
+					});
+				}
+			});
 		}
 	};
 }
@@ -204,27 +231,27 @@ export const todayTasks = derived(eventStore, (eventStore) => {
 		eventStore.filter((event) => {
 			// check if event is a task, not completed or completed today, and due today or overdue
 			if (event.isTask) {
-				console.log('is task');
+				// console.log('is task');
 				var todayDate = new Date();
 				todayDate.setHours(0, 0, 0, 0);
 				var tomorrowDate = new Date(todayDate);
 				tomorrowDate.setDate(tomorrowDate.getDate() + 1);
 
 				if (event.completed && event.completedAt) {
-					console.log(Date.parse(event.completedAt), todayDate.valueOf());
+					// console.log(Date.parse(event.completedAt), todayDate.valueOf());
 					if (Date.parse(event.completedAt) < todayDate.valueOf()) return false;
 				}
-				console.log('is not completed today task');
+				// console.log('is not completed today task');
 				if (!event.dueDate) return false;
-				console.log('is not no due date task');
+				// console.log('is not no due date task');
 				if (Date.parse(event.dueDate) > tomorrowDate.valueOf()) return false;
-				console.log('is today task');
+				// console.log('is today task');
 				return true;
 			}
 			return false;
 		}),
-		['completed','dueDate', 'priority',],
-		['asc','asc', 'desc',]
+		['completed', 'dueDate', 'priority'],
+		['asc', 'asc', 'desc']
 	);
 });
 
@@ -235,11 +262,19 @@ export const todayEvents = derived(eventStore, (eventStore) => {
 			if (!event.isTask) {
 				var todayDate = new Date();
 				todayDate.setHours(0, 0, 0, 0);
-				var tomorrowDate = new Date(todayDate);
-				tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+				// get weeks's date
+				let weekBeforeDate = new Date(todayDate);
+				weekBeforeDate.setDate(weekBeforeDate.getDate() - 7);
+
+				let weekDate = new Date(todayDate);
+				weekDate.setDate(weekDate.getDate() + 7);
 
 				if (event.startDateTime && event.endDateTime) {
-					if (Date.parse(event.endDateTime) > todayDate.valueOf() && Date.parse(event.startDateTime) < tomorrowDate.valueOf()) return true;
+					if (
+						Date.parse(event.endDateTime) > weekBeforeDate.valueOf() &&
+						Date.parse(event.startDateTime) < weekDate.valueOf()
+					)
+						return true;
 				}
 
 				return false;

@@ -71,13 +71,13 @@
 			/>
 			<div class="my-1 flex justify-between gap-3">
 				<input
-					type="datetime-local"
+					type="datetime"
 					step="9000"
 					bind:value={addStart}
 					class="appearance-none rounded bg-transparent text-xs focus:border-todoist-4 focus:ring-0"
 				/>
 				<input
-					type="datetime-local"
+					type="datetime"
 					step="9000"
 					bind:value={addEnd}
 					class="appearance-none rounded bg-transparent text-xs focus:border-todoist-4 focus:ring-0"
